@@ -7,7 +7,7 @@ import           Data.Aeson
 import           Data.Aeson.TH
 import           Data.Ratio    ((%))
 import           RIO
-import           RIO.Map       (fromList)
+import qualified RIO.Map       as M
 import           RIO.Process   (HasProcessContext (..), ProcessContext)
 
 data App = App
@@ -70,7 +70,7 @@ data CategoryAmount = CategoryAmount
   deriving (Show)
 
 categoryAmountToMap :: [CategoryAmount] -> Map CategoryName Amount
-categoryAmountToMap xs = fromList $ fmap (\(CategoryAmount c a) -> (c, a)) xs
+categoryAmountToMap = foldr (\(CategoryAmount c a) z -> M.insert c a z) M.empty
 
 data BillAmount = BillAmount
   { _bill   :: BillName
@@ -79,7 +79,7 @@ data BillAmount = BillAmount
   deriving (Show)
 
 billAmountToMap :: [BillAmount] -> Map CategoryName Amount
-billAmountToMap xs = fromList $ fmap (\(BillAmount b a) -> (b, a)) xs
+billAmountToMap = foldr (\(BillAmount b a) z -> M.insert b a z) M.empty
 
 makeLensesWith classUnderscoreNoPrefixFields ''Bill
 makeLensesWith classUnderscoreNoPrefixFields ''District
