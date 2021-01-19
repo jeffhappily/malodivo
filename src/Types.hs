@@ -57,11 +57,29 @@ instance FromJSON District where
     billSpecificFunding     <- v .: "billSpecificFunding"
     caps                    <- v .: "caps"
 
-    let _categoryDefaultFunding = fromList categoryDefaultFunding
-    let _billSpecificFunding = fromList billSpecificFunding
-    let _caps = fromList caps
+    let _categoryDefaultFunding = categoryAmountToMap categoryDefaultFunding
+    let _billSpecificFunding = billAmountToMap billSpecificFunding
+    let _caps = categoryAmountToMap caps
 
     return District{..}
+
+data CategoryAmount = CategoryAmount
+  { _category :: CategoryName
+  , _amount   :: Amount
+  }
+  deriving (Show)
+
+categoryAmountToMap :: [CategoryAmount] -> Map CategoryName Amount
+categoryAmountToMap xs = fromList $ fmap (\(CategoryAmount c a) -> (c, a)) xs
+
+data BillAmount = BillAmount
+  { _bill   :: BillName
+  , _amount :: Amount
+  }
+  deriving (Show)
+
+billAmountToMap :: [BillAmount] -> Map CategoryName Amount
+billAmountToMap xs = fromList $ fmap (\(BillAmount b a) -> (b, a)) xs
 
 makeLensesWith classUnderscoreNoPrefixFields ''Bill
 makeLensesWith classUnderscoreNoPrefixFields ''District
@@ -69,6 +87,8 @@ makeLensesWith classUnderscoreNoPrefixFields ''District
 $(deriveJSON defaultOptions 'Input)
 $(deriveJSON defaultOptions { fieldLabelModifier = drop 1 } 'Bill)
 $(deriveToJSON defaultOptions { fieldLabelModifier = drop 1 } 'District)
+$(deriveJSON defaultOptions { fieldLabelModifier = drop 1 } 'CategoryAmount)
+$(deriveJSON defaultOptions { fieldLabelModifier = drop 1 } 'BillAmount)
 
 -- | Constraint is a function that given a value, returns a
 -- constrained value

@@ -16,7 +16,6 @@ run = do
 
       forM_ (liftA2 (,) cats (districts a)) $ \(c, d) -> do
         let x = calculateCategory c d (bills a)
-
         let b = runConstraint x 0
 
         logInfo $ displayShow b
