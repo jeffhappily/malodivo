@@ -1,8 +1,7 @@
 module Bill where
 
 import           Import
-import           RIO.List (nub)
-import           RIO.Map  (findWithDefault, (!?))
+import           RIO.Map (findWithDefault, (!?))
 
 -- |
 districtAmountForBill :: District -> Bill -> Constraint Integer
@@ -33,4 +32,4 @@ calculateCategory cat d bs = districtAmountForBillsWithCap cap d bs'
 
 -- | Get all available categories from a list of bills
 getCategories :: [Bill] -> [CategoryName]
-getCategories = nub . fmap (^. category)
+getCategories = nubOrd . fmap (^. category)
