@@ -92,8 +92,7 @@ $(deriveToJSON defaultOptions {fieldLabelModifier = drop 1} 'District)
 $(deriveJSON defaultOptions {fieldLabelModifier = drop 1} 'CategoryAmount)
 $(deriveJSON defaultOptions {fieldLabelModifier = drop 1} 'BillAmount)
 
--- | Constraint is a function that given a value, returns a
--- constrained value
+-- | Constraint is a function that given a value, returns a constrained value
 newtype Constraint' a b = Constraint
   { runConstraint ::
       a -> -- Initial value
@@ -103,15 +102,19 @@ newtype Constraint' a b = Constraint
 
 type Constraint a = Constraint' a a
 
--- | Bill specific fund
+-- | Bill specific fund constraint, will return bsf (bill specific fund) if exists, otherwise
+-- returns whatever being passed in
 bsfConstraint :: Maybe Integer -> Constraint Integer
-bsfConstraint num = Constraint $ \x -> fromMaybe x num
+bsfConstraint bsf = Constraint $ \x -> fromMaybe x bsf
 
--- | Cap funding
+-- | Cap funding constraint, given a capped amount @cap@, returns a constraint that cap its
+-- input at @cap@
 capConstraint :: Integer -> Constraint Integer
-capConstraint num = Constraint $ \x -> min x num
+capConstraint cap = Constraint $ \x -> min x cap
 
--- |
+-- | Given a total amount, if the sum of the given integer list is greater than the total
+-- amount, return a new list with all the value reduced so that the list adds up to the
+-- total amount, otherwise, return the original list
 ratioConstraint :: Integer -> Constraint [Integer]
 ratioConstraint x = Constraint $ \xs ->
   let total = sum xs
